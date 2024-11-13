@@ -28,9 +28,13 @@ require('dotenv').config();
 	db.on("error", console.error.bind(console, "connection error"));
 	db.once("open", () => console.log("Welcome to ScholarJunction"))
 
-	const bodyparser = require("body-parser");
-	app.use(bodyparser.urlencoded({ extended: false }));
-	app.use(bodyparser.json());
+	var bodyParser = require('body-parser');
+	app.use( bodyParser.json({limit: '50mb'}) );
+	app.use(bodyParser.urlencoded({
+	  limit: '50mb',
+	  extended: true,
+	  parameterLimit:50000
+	}));
 	app.use(cors());
 	app.use("/students", student);
 	app.use("/users", user);

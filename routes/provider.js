@@ -21,6 +21,9 @@ router.post('/createKYC/:id', verify, (req, res) => {
 
 router.post('/organizations', organizationController.createOrg);
 
+router.get('/user/:userId', providerController.getProviderByUserId);
+
+
 // router.post('/update', verify, providerController.updateOrganizationDetails);
 
 // router.get('/profile', verify, providerController.getProvider);

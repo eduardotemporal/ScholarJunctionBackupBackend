@@ -133,11 +133,9 @@ module.exports.createOrUpdateProviderProfile = async (req, res) => {
 // }
 
 module.exports.createKYC = async (req, res) => {
-    console.log("createKYC controller called");  // Debugging log
     upload(req, res, async (err) => {
         if (err) {
-            console.error("File upload error:", err);
-            return res.status(400).json({ error: err.message || 'File upload failed' });
+            return res.status(400).json({ error: err });
         }
 
         try {
@@ -152,56 +150,73 @@ module.exports.createKYC = async (req, res) => {
             const governmentIDPath = req.files['governmentID'] ? req.files['governmentID'][0].filename : null;
             const proofOfEmploymentPath = req.files['proofOfEmployment'] ? req.files['proofOfEmployment'][0].filename : null;
 
-            provider.kycDetails.push({
+            provider.kycDetails = {
                 governmentTypeID,
                 governmentID: governmentIDPath,
                 proofOfEmploymentType,
                 proofOfEmployment: proofOfEmploymentPath
-            });
+            };
 
             await provider.save();
 
-            console.log("KYC details saved successfully");
             return res.json({ success: true, kycDetails: provider.kycDetails });
         } catch (error) {
-            console.error("Error saving KYC details:", error);
-            return res.status(500).json({ error: 'Failed to create KYC details', details: error.message });
+            console.error(error);
+            return res.status(500).json({ error: 'Failed to create KYC details' });
         }
     });
 };
 
 
 
-module.exports.updateOrganizationDetails = async (req, res) => {
-  try {
-    const providerId = req.provider.id; 
-    const organizationData = req.body; 
+module.exports.getProviderByUserId = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+
+        const provider = await Provider.findOne({ userId });
+
+        if (!provider) {
+            return res.status(404).json({ error: 'Provider not found' });
+        }
+
+        return res.json({ success: true, provider });
+    } catch (error) {
+        console.error("Error finding provider by userId:", error);
+        return res.status(500).json({ error: 'Failed to retrieve provider' });
+    }
+};
+
+
+// module.exports.updateOrganizationDetails = async (req, res) => {
+//   try {
+//     const providerId = req.provider.id; 
+//     const organizationData = req.body; 
 
    
-    const provider = await Provider.findById(providerId);
+//     const provider = await Provider.findById(providerId);
 
-    if (!provider) {
-      return res.status(404).send({ message: 'Provider not found' });
-    }
+//     if (!provider) {
+//       return res.status(404).send({ message: 'Provider not found' });
+//     }
 
     
-    const newOrganizationDetails = {
-      position: organizationData.position,
-      name: organizationData.name,
-      address: organizationData.address,
-      organizationPassword: organizationData.organizationPassword
-    };
+//     const newOrganizationDetails = {
+//       position: organizationData.position,
+//       name: organizationData.name,
+//       address: organizationData.address,
+//       organizationPassword: organizationData.organizationPassword
+//     };
 
    
-    provider.organizationDetails.push(newOrganizationDetails);
+//     provider.organizationDetails.push(newOrganizationDetails);
 
  
-    await provider.save();
+//     await provider.save();
 
-    return res.send({ message: 'Organization details added successfully' });
-  } catch (error) {
-    console.error('Error adding organization details:', error);
-    res.status(500).send({ message: 'Failed to add organization details' });
-  }
-};
+//     return res.send({ message: 'Organization details added successfully' });
+//   } catch (error) {
+//     console.error('Error adding organization details:', error);
+//     res.status(500).send({ message: 'Failed to add organization details' });
+//   }
+// };
 
